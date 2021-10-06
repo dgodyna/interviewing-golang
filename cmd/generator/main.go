@@ -50,7 +50,7 @@ func main() {
 	fmt.Printf("dump output: %s\n", outPutFile)
 
 	// act
-	var events []*model.Event
+	events := []*model.Event{}
 
 	// generate requested number of events
 	for i := 0; i < numEvents; i++ {
