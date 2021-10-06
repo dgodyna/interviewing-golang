@@ -40,31 +40,31 @@ func main() {
 	dbUrl := os.Args[1]
 	url, err := dburl.Parse(dbUrl)
 	if err != nil {
-		panic(fmt.Errorf("unable to parse database URL '%s' : %w", url, err))
+		panic(fmt.Errorf("unable to parse database URL '%s' : %+v", url, err))
 	}
 
 	eventRaw, err := ioutil.ReadFile(inputFile)
 	if err != nil {
-		panic(fmt.Errorf("unable to read input file : %w", err))
+		panic(fmt.Errorf("unable to read input file : %+v", err))
 	}
 
 	var events []*model.Event
 
 	err = json.Unmarshal(eventRaw, &events)
 	if err != nil {
-		panic(fmt.Errorf("unable to unmarshall event file content : %w", err))
+		panic(fmt.Errorf("unable to unmarshall event file content : %+v", err))
 	}
 
 	fmt.Printf("Total events to load : %d\n", len(events))
 
 	db, err := sql.Open("postgres", url.DSN)
 	if err != nil {
-		panic(fmt.Errorf("unable to connecto to database : %w", err))
+		panic(fmt.Errorf("unable to connecto to database : %+v", err))
 	}
 
 	tx, err := db.Begin()
 	if err != nil {
-		panic(fmt.Errorf("unable to start transaction : %w", err))
+		panic(fmt.Errorf("unable to start transaction : %+v", err))
 	}
 	defer db.Close()
 
@@ -72,7 +72,7 @@ func main() {
 		err = load(tx, e)
 		if err != nil {
 			tx.Rollback()
-			panic(fmt.Errorf("unable to load event : %w", err))
+			panic(fmt.Errorf("unable to load event : %+v", err))
 		}
 	}
 

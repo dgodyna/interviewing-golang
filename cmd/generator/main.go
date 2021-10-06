@@ -41,7 +41,7 @@ func main() {
 	numEventsStr := os.Args[1]
 	numEvents, err := strconv.Atoi(numEventsStr)
 	if err != nil {
-		panic(fmt.Errorf("unable to parse number of events : %w", err))
+		panic(fmt.Errorf("unable to parse number of events : %+v", err))
 	}
 
 	outPutFile := os.Args[2]
@@ -60,13 +60,13 @@ func main() {
 	// marshall for saving
 	content, err := json.Marshal(events)
 	if err != nil {
-		panic(fmt.Errorf("unable to marshall events : %w", err))
+		panic(fmt.Errorf("unable to marshall events : %+v", err))
 	}
 
 	// and write everything
 	err = ioutil.WriteFile(outPutFile, content, 0777)
 	if err != nil {
-		panic(fmt.Errorf("unable to write file : %w", err))
+		panic(fmt.Errorf("unable to write file : %+v", err))
 	}
 }
 
@@ -99,14 +99,13 @@ func generateEvent() *model.Event {
 // * type 5 - 45%
 func generateEventType() int {
 	r := rand.Intn(100)
-	switch {
-	case r < 15:
+
+	if r < 15 {
 		return 1
-	case r < 35:
+	} else if r < 35 {
 		return 2
-	case r < 55:
+	} else if r < 55 {
 		return 3
-	default:
-		return 5
 	}
+	return 5
 }
