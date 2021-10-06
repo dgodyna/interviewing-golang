@@ -1,0 +1,6 @@
+github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
+github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/lib/pq v1.3.0 h1:/qkRGz8zljWiDcFvgpwUpwIAPu3r07TDvs3Rws+o/pU=
+github.com/lib/pq v1.3.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
+github.com/xo/dburl v0.0.0-20200910011426-652e0d5720a3 h1:WchQs0yWhP3iA3CFE57fmCltE5dx5FkbUZOJZBjEtJ8=
+github.com/xo/dburl v0.0.0-20200910011426-652e0d5720a3/go.mod h1:TM8VMBT+LWqC3MBOulZjb8FAthcvZq0t/qvDLwS6skU=

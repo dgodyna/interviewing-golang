@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  postgres:
+    container_name: postgres
+    image: library/postgres:12.4
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    volumes:
+      - ./data/postgres/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql
