@@ -1,3 +1,9 @@
+# Introduction
+
+This code has problems and does not aims our SLA.
+
+Let's find all the issues and make it great.
+
 # Overview
 
 Program is diveded on 2 parts: data generator and loader. Data generator will generate provided amount of randomly
