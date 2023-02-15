@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// run generation of costed eventsand save them to provided file.
+// run generation of costed events and save them to provided file.
 // costed event will have following types and probability:
 // * type 1 - 15%
 // * type 2 - 20%
