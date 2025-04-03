@@ -6,24 +6,24 @@ import (
 	"github.com/dmgo1014/interviewing-golang.git/pkg/generator"
 	"github.com/dmgo1014/interviewing-golang.git/pkg/model"
 	"github.com/google/uuid"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
 )
 
-// run generation of costed events and save them to provided file.
-// costed event will have following types and probability:
-// * type 1 - 15%
-// * type 2 - 20%
-// * type 3 - 20&
-// * type 5 - 45%
+// Generates events and saves them to the specified output file.
+// The generated events will have the following types and associated probabilities:
+// - Event type '1': 15%
+// - Event type '2': 20%
+// - Event type '3': 20%
+// - Event type '5': 45%
 //
-// rest of fields will be filled randomly.
+// All other fields in the events will be filled with random values.
 //
-// arg 1 - number of events to generate
-// arg 2 - output file.
+// Arguments:
+// 1. The number of events to generate.
+// 2. The path to the output file where the events will be saved.
 func main() {
 
 	// log time duration on application shutdown
@@ -38,12 +38,14 @@ func main() {
 		panic(fmt.Errorf("invalid number of arguments, 2 expected, got %d", len(os.Args)-1))
 	}
 
+	// number of events is the first argument
 	numEventsStr := os.Args[1]
 	numEvents, err := strconv.Atoi(numEventsStr)
 	if err != nil {
 		panic(fmt.Errorf("unable to parse number of events : %+v", err))
 	}
 
+	// output file is the second
 	outPutFile := os.Args[2]
 
 	fmt.Printf("number event : %d\n", numEvents)
@@ -64,13 +66,13 @@ func main() {
 	}
 
 	// and write everything
-	err = ioutil.WriteFile(outPutFile, content, 0777)
+	err = os.WriteFile(outPutFile, content, 0777)
 	if err != nil {
 		panic(fmt.Errorf("unable to write file : %+v", err))
 	}
 }
 
-// generateEvent will create a new instance of event with some random values.
+// generateEvent creates and returns a new instance of model.Event populated with random values for all its fields.
 func generateEvent() *model.Event {
 	return &model.Event{
 		EventSource:     rand.Intn(88005553535),
@@ -92,11 +94,11 @@ func generateEvent() *model.Event {
 	}
 }
 
-// generateEventType will generate event type with following probability;
-// * type 1 - 15%
-// * type 2 - 20%
-// * type 3 - 20&
-// * type 5 - 45%
+// generateEventType generates a random event type (integer) based on predefined probability distributions:
+// - Type 1: 15%
+// - Type 2: 20%
+// - Type 3: 20%
+// - Type 5: 45%
 func generateEventType() int {
 	r := rand.Intn(100)
 

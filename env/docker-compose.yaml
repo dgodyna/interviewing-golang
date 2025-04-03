@@ -2,8 +2,9 @@ version: "3"
 
 services:
   postgres:
+    # Postgres instance
     container_name: postgres
-    image: library/postgres:12.4
+    image: library/postgres:17.4
     restart: always
     ports:
       - 5432:5432

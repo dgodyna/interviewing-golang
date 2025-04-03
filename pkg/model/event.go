@@ -2,21 +2,21 @@ package model
 
 import "time"
 
-// Event is a single billable occurrence of product usage.
+// Event represent event for future rating..
 type Event struct {
-	// EventSource is the source of the event, for example: telephone number.
+	// EventSource is the source of the event, for example, telephone number.
 	EventSource int `json:"event_source"`
-	// EventRef is unique event identifier across all the events.
+	// EventRef is a unique event identifier across all the events.
 	EventRef string `json:"event_ref"`
-	// EventType is type of service to which the event relates. Roaming/non-roaming.
+	// EventType is a type of service to which the event relates. Roaming/non-roaming.
 	EventType int `json:"event_type"`
 	// EventDate datetime of event.
 	EventDate time.Time `json:"event_date"`
-	// CallingNumber the person initiated event.
+	// CallingNumber the person initiated the event.
 	CallingNumber int `json:"calling_number"`
 	// CalledNumber the person received an event.
 	CalledNumber int `json:"called_number"`
-	// Location where event occurred.
+	// Location where the event occurred.
 	Location string `json:"location"`
 	// DurationSeconds is duration of event in seconds.
 	DurationSeconds int `json:"duration_seconds"`

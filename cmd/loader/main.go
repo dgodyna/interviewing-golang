@@ -6,14 +6,11 @@ import (
 	"fmt"
 	"github.com/dmgo1014/interviewing-golang.git/pkg/model"
 	"github.com/xo/dburl"
-	"io/ioutil"
 	"os"
 	"time"
 
 	_ "github.com/lib/pq"
 )
-
-// "postgresql://nrm:nrm@pg:5432/nrm?sslmode=disable"
 
 // Loader will read generated dump and load it in provided DB.
 //
@@ -33,56 +30,60 @@ func main() {
 		panic(fmt.Errorf("invalid number of arguments, 2 expected, got %d", len(os.Args)-1))
 	}
 
-	inputFile := os.Args[2]
-
-	fmt.Printf("input file: %s\n", inputFile)
-
+	// arg 1 is database URL
 	dbUrl := os.Args[1]
 	url, err := dburl.Parse(dbUrl)
 	if err != nil {
 		panic(fmt.Errorf("unable to parse database URL '%s' : %+v", url, err))
 	}
 
-	eventRaw, err := ioutil.ReadFile(inputFile)
+	// arg 2 is file holding events to load
+	inputFile := os.Args[2]
+	fmt.Printf("input file: %s\n", inputFile)
+
+	// read and unmarshall events
+	eventRaw, err := os.ReadFile(inputFile)
 	if err != nil {
 		panic(fmt.Errorf("unable to read input file : %+v", err))
 	}
-
 	var events []*model.Event
-
 	err = json.Unmarshal(eventRaw, &events)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshall event file content : %+v", err))
 	}
-
 	fmt.Printf("Total events to load : %d\n", len(events))
 
+	// open DB connection
 	db, err := sql.Open("postgres", url.DSN)
 	if err != nil {
 		panic(fmt.Errorf("unable to connecto to database : %+v", err))
 	}
 
+	// start the transaction
 	tx, err := db.Begin()
 	if err != nil {
 		panic(fmt.Errorf("unable to start transaction : %+v", err))
 	}
 	defer db.Close()
+	defer tx.Rollback()
 
+	// load all the events
 	for _, e := range events {
 		err = load(tx, e)
 		if err != nil {
-			tx.Rollback()
 			panic(fmt.Errorf("unable to load event : %+v", err))
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		panic(fmt.Errorf("unable to commit transaction : %+v", err))
 	}
 
 	fmt.Printf("sucessfully loaded %d events\n", len(events))
 
-	tx.Commit()
-
 }
 
-// load will save event to database.
+// load will insert an event into database.
 func load(tx *sql.Tx, event *model.Event) error {
 
 	q := `
@@ -91,7 +92,7 @@ insert into event(event_source, event_ref, event_type, event_date, calling_numbe
 values ($1, $2, $3, %s, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 `
 
-	// we have to format query to use function for converting time
+	// we have to format a query to use function for converting time
 	q = fmt.Sprintf(q, timeToTimestampNoTz(&event.EventDate))
 
 	_, err := tx.Exec(q,
