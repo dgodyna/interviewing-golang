@@ -28,6 +28,7 @@ import (
 
 	"github.com/dmgo1014/interviewing-golang.git/pkg/generator"
 	"github.com/dmgo1014/interviewing-golang.git/pkg/model"
+	"github.com/dmgo1014/interviewing-golang.git/pkg/reporter"
 	"github.com/google/uuid"
 )
 
@@ -51,10 +52,6 @@ import (
 func main() {
 	// Performance monitoring: Track total execution time for benchmarking
 	start := time.Now()
-	defer func() {
-		fmt.Println("================")
-		fmt.Printf("Execution Time : %v\n", time.Since(start))
-	}()
 
 	// Input validation: Ensure exactly 2 arguments are provided
 	if len(os.Args) != 3 {
@@ -71,8 +68,8 @@ func main() {
 	// Extract output file path from second command-line argument
 	outPutFile := os.Args[2]
 
-	fmt.Printf("number event : %d\n", numEvents)
-	fmt.Printf("dump output: %s\n", outPutFile)
+	fmt.Printf("number of events: %d\n", numEvents)
+	fmt.Printf("events dump location: %s\n", outPutFile)
 
 	// Event generation phase: Create all events in memory
 	events := []*model.Event{}
@@ -92,6 +89,19 @@ func main() {
 	err = os.WriteFile(outPutFile, content, 0777)
 	if err != nil {
 		panic(fmt.Errorf("unable to write file : %+v", err))
+	}
+
+	///////////////////////////////////////////////////////////////////
+	// below code does not require optimization, it just print statistic
+	///////////////////////////////////////////////////////////////////
+	duration := time.Since(start)
+	err = reporter.SaveAndReport(reporter.ExecutionStatistic{
+		ExecutionStart: start,
+		Duration:       duration,
+		NumbOfEvents:   numEvents,
+	}, "report.jsonl")
+	if err != nil {
+		panic(fmt.Errorf("unable to save and report : %+v", err))
 	}
 }
 
