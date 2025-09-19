@@ -1,128 +1,126 @@
-# Introduction
+# Network Event Data Generator
 
-This repository contains sample programs created for interview purposes. These programs operate according to the design
-specifications detailed below and produce correct results. However, the current implementation is neither optimized nor
-efficient, as it suffers from performance bottlenecks and potential vulnerabilities.
+This repository contains a high-volume data generator for network events, designed as an interview assessment project.
 
-The primary objective of this project is to refactor and improve the code to enhance its performance, address
-vulnerabilities, and ensure the system is efficient, maintainable, and scalable.
+## Challenge Overview
 
-# Rules
+The current implementation generates correct event data but **is intentionally unoptimized** and contains performance
+bottlenecks and potential security vulnerabilities.
 
-You can use any tools or resources needed to work with the code. Treat this as a real-world task; you are allowed to
-utilize the following:
+**Your mission**: Refactor and optimize this codebase to achieve production-grade performance, security, and
+maintainability while handling millions of events efficiently.
 
-* Any IDE (e.g., GoLand, VS Code, Cursor, etc.);
-* Search engines (e.g., Google);
-* AI Assistants (e.g., Copilot, JetBrains AI Assistant, ChatGPT, etc.);
-* Asking questions to the interviewers.
+## Prerequisites
+
+- **Go 1.24+** (check with `go version`)
+- **Make** (for running build commands)
+- Basic understanding of high-performance data processing
+- graphviz (optional for generating profiler reports)
+
+## Getting Started
+
+1. **Clone and explore** the repository structure
+2. **Run the current implementation**: `make test_1M`
+3. **Analyze performance bottlenecks** and identify optimization opportunities
+4. **Implement your improvements** following the guidelines below
+
+## Available Resources
+
+You have access to all standard development tools and resources:
+
+- Any IDE (GoLand, VS Code, Cursor, etc.)
+- Search engines and documentation
+- AI assistants (GitHub Copilot, ChatGPT, etc.)
+- Feel free to ask the interviewers questions
+
+## Code Modification Guidelines
+
+You are **free to modify any code** within this repository to improve performance, fix vulnerabilities, and enhance
+maintainability. The following constraints apply:
+
+* **Event Data Integrity**: The generated events must preserve their semantic meaning and all required data fields
+* **Data Structure Flexibility**: You may propose changes to the data structure format (e.g., JSON, CSV, binary, etc.)
+  as long as no data is lost and the events remain loadable into a database
+* **Field Requirements**: All event fields listed in the Event Structure section must be preserved, though you may
+  optimize their representation or storage format
+
+The key principle is: **optimize the implementation while preserving the data's meaning and completeness**.
 
 # Description
 
 ## Task Background
 
-The goal of this project is to develop a system to handle the **rating of network events**. These events are captured by
-a mediation system, which processes hundreds of thousands of events per second. The mediation system’s sole purpose is
+The goal of this project is to develop a data generator for **network events**. These events simulate those captured by
+a mediation system, which processes hundreds of thousands of events per second. The mediation system's sole purpose is
 to persist these events on disk for further processing.
 
-Once a week, the persisted events are transferred to a **rating system**, which reads them from storage and performs
-rating operations. The system operates under a strict **two-hour time window**, making the execution time of each
-operation critical to success.
+### Objective:
 
-### Objectives:
-
-1. Design a mechanism to generate millions of events and persist them on disk, mimicking the behavior of the mediation
-   system for internal testing purposes.
-2. Implement an efficient mechanism to load the persisted events into a database, preparing them for rating.
+Design a mechanism to generate millions of events and persist them on disk, mimicking the behavior of the mediation
+system for internal testing purposes.
 
 ---
 
 ## System Description
 
-The system is divided into two main components: **data generator** and **data loader**.
-
-**Note**: While the event format contract between the generator and loader can be modified, the database table schema
-must remain unchanged.
-
 ### Data Generator
 
-The **data generator** is responsible for generating a specified number of **random events**. Each event’s content is
+The **data generator** is responsible for generating a specified number of **random events**. Each event's content is
 randomly generated, and while uniqueness is not enforced, constants or identical values across events should be avoided.
 
-The most important field in the generated data is the `event_type`. Based on its value, the rating system performs
-specific actions, which have varying resource costs. The generator ensures that events are generated with the following
-probabilities for each event type:
+### Event Type Distribution
 
-- **Event type '1'**: 15%
-- **Event type '2'**: 20%
-- **Event type '3'**: 20%
-- **Event type '5'**: 45%
+The `event_type` field is **critical** for downstream rating systems, as different types trigger operations with varying
+computational costs:
 
-The resulting events are stored locally on the file system for future processing. The event structure generated by the
-data generator matches the schema of the database table to ensure compatibility with the loader.
+| Event Type | Probability | Processing Cost | Business Impact     |
+|------------|-------------|-----------------|---------------------|
+| **1**      | 15%         | Low             | Standard calls      |
+| **2**      | 20%         | Medium          | Premium services    |
+| **3**      | 20%         | Medium          | International calls |
+| **5**      | 45%         | High            | Complex routing     |
 
-### Data Loader
+**Important**: This distribution must be maintained precisely, as it reflects real-world traffic patterns and affects
+downstream system resource planning.
 
-The **data loader** is a separate process that reads the event data files produced by the generator and inserts the
-events into the database. The insertion process must be optimized to handle large volumes of generated data efficiently.
-
----
-
-### Database Table Structure
-
-The system uses the following database schema for storing events:
-
-```sql
-CREATE TABLE event (
-    event_source     TEXT NOT NULL, -- Unique identifier of the client
-    event_ref        TEXT NOT NULL, -- Unique identifier of the event
-    event_type       INTEGER NOT NULL,
-    event_date       TIMESTAMP NOT NULL,
-    calling_number   BIGINT NOT NULL,
-    called_number    BIGINT NOT NULL,
-    location         TEXT NOT NULL,
-    duration_seconds BIGINT NOT NULL,
-    attr_1           TEXT,
-    attr_2           TEXT,
-    attr_3           TEXT,
-    attr_4           TEXT,
-    attr_5           TEXT,
-    attr_6           TEXT,
-    attr_7           TEXT,
-    attr_8           TEXT,
-    PRIMARY KEY (event_source, event_ref)
-);
-
-CREATE INDEX event_called_number_index     ON event (called_number);
-CREATE INDEX event_calling_number_index    ON event (calling_number);
-CREATE INDEX event_event_date_index        ON event (event_date);
-CREATE UNIQUE INDEX event_event_ref_uindex ON event (event_ref);
-CREATE INDEX event_event_type_index        ON event (event_type);
-CREATE INDEX event_location_index          ON event (location);
-```
-
-This schema is designed to allow fast lookups based on key query parameters, including `event_ref`, `called_number`,
-`calling_number`, `event_date`, `event_type`, and `location`.
+The generated events are persisted to the local file system in a format optimized for high-throughput processing by
+downstream rating systems.
 
 ---
 
-## Goal
+### Event Structure
 
-Our ultimate goal is to **generate and insert 1 billion events** into the database efficiently.
+The data generator creates events with the following structure:
 
-To validate the system, you can perform testing on a smaller scale using the following steps:
-
-1. Start the PostgreSQL instance:
-   ```shell
-   make start_env
-   ```
-
-2. Run the test for generating and inserting 1 million events:
-   ```shell
-   make test_1M
-   ```
+- **event_source**: Unique identifier of the client
+- **event_ref**: Unique identifier of the event
+- **event_type**: Integer (1, 2, 3, or 5) with specific probability distribution
+- **event_date**: Timestamp of the event
+- **calling_number**: Source phone number (BIGINT)
+- **called_number**: Destination phone number (BIGINT)
+- **location**: Geographic location identifier
+- **duration_seconds**: Call duration in seconds (BIGINT)
+- **attr_1** through **attr_8**: Optional text attributes for additional data
 
 ---
 
-This documentation provides a clear and structured overview of the project, its objectives, and implementation
-specifics.
+## Performance Goals & Validation
+
+### Target Performance
+
+Below is actual timing & optimized time gathered on MacBook Pro 16 with M4 Max
+
+| Number of Events | Initial Time   | Optimized Time | Improvement |
+|------------------|----------------|----------------|-------------|
+| 10k              | 75.437791ms    | 5.574375ms     | +1253%      |
+| 100k             | 528.785833ms   | 52.891875ms    | +900%       |
+| 1M               | 5.015893833s   | 445.898958ms   | +1025%      |
+| 10M              | 1m5.344727125s | 8.048328959s   | +712%       |
+
+## Need Help?
+
+- Review the existing codebase to understand current implementation
+- Run `make help` to see available commands
+- Ask questions during the interview - we're here to help!
+
+*Good luck with the optimization challenge!* 🚀
